@@ -5,7 +5,7 @@
 extern mod std;
 use std::libc::size_t;
 use std::ptr;
-use std::util::{Void,replace,swap};
+use std::util::{Void,replace};
 #[test]
 use std::mem::size_of;
 use std::cmp::Eq;
@@ -242,6 +242,9 @@ impl Block {
             BestMatch(&'a mut BlockData, &'a mut BlockMeta),
             NoMatch
         }
+        //let mut prev_link = &mut free_mblock_list.p;
+        //let mut best: Option<(&mut BlockData, &mut BlockMeta)> = None
+
         fn go<'a>(n: uint,
                   prev_link: &'a mut Option<~Block>,
                   best: Option<(&'a mut BlockData, &'a mut BlockMeta)>)
@@ -256,7 +259,7 @@ impl Block {
                 // take()
                 &Some(~Block {meta: BlockMeta {blocks, ..}, ..}) if blocks as uint == n => {
                     let mut bd = prev_link.take_unwrap();
-                    swap(prev_link, &mut bd.link.p);
+                    *prev_link = bd.link.p.take();
                     PerfectMatch(bd)
                 },
                 &Some(ref mut bd) => {
